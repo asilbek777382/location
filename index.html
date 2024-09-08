@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Track Location</title>
+    <script>
+        function sendLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var latitude = position.coords.latitude;
+                    var longitude = position.coords.longitude;
+
+                    fetch('https://yourserver.com/location', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            user_id: getParameterByName('user_id'),
+                            latitude: latitude,
+                            longitude: longitude
+                        })
+                    }).then(response => response.json())
+                      .then(data => console.log('Success:', data))
+                      .catch((error) => console.error('Error:', error));
+                }, function(error) {
+                    console.error('Error getting location:', error);
+                });
+            } else {
+                console.log('Geolocation is not supported by this browser.');
+            }
+        }
+
+        function getParameterByName(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            var results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        }
+
+        window.onload = sendLocation;
+    </script>
+</head>
+<body>
+    <h1>Tracking Location</h1>
+</body>
+</html>
